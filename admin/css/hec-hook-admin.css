@@ -1,0 +1,90 @@
+/**
+ * CSS for hook admin custom post type.
+ */
+ 
+/* Add margin above hook meta box */
+#hec-hook-details-mb {
+	margin-top: 2em;
+}
+
+/* Hide WP Editor when text editor being used and vice versa */
+.hec-hide-editor {
+	display: none;
+}
+
+/* Style metabox hook details inputs */
+#hec-hook-details-mb .hec-field {
+	margin-bottom: 1em;
+}
+
+#hec-hook-details-mb .hec-field label {
+	font-weight: 600;
+	display: block;
+	width: 6em;
+}
+
+#hec-hook-details-mb .hec-field span {
+	display: block;
+	font-style: italic;
+}
+
+#hec-hook-details-mb .hec-text-input label {
+	vertical-align: baseline;
+}
+
+#hec-hook-details-mb .hec-textarea-input label {
+	vertical-align: top;
+}
+
+#hec-hook-name,
+#hec-hook-description {
+	width: 30em;
+	max-width: 98%;
+}
+
+/* Style specific locations metabox */
+#hec-hook-specific-locations-mb p {
+	font-weight: 600;
+}
+
+/* Style permissions metabox */
+#hec-hook-editing-permissions-display-mb td,
+#hec-hook-editing-permissions-display-mb th {
+	padding: 0 2px;
+	line-height: 1;
+}
+
+#hec-hook-editing-permissions-display-mb tr td,
+#hec-hook-editing-permissions-display-mb tr th {
+	text-align: center;
+}
+
+#hec-hook-editing-permissions-display-mb tr td:first-child,
+#hec-hook-editing-permissions-display-mb tr th:first-child {
+	text-align: left;
+}
+
+#hec-hook-editing-permissions-display-mb input {
+	margin-right: 0;
+}
+
+/* Style excluded post types metabox */
+#hec-hook-excl-post-types-display-mb input {
+	width: 100%;
+}
+
+/* Media queries */
+@media screen and (min-width: 1080px) {
+	/* Style metabox hook details inputs */
+	#hec-hook-details-mb .hec-field label {
+		display: inline-block;
+	}
+	
+	#hec-hook-details-mb .hec-field span {
+		margin-left: 6em;
+	}
+	
+	#hec-hook-details-mb .hec-textarea-input label {
+		padding-top: 4px;
+	}
+}
