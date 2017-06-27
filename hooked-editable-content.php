@@ -4,7 +4,7 @@
  * Plugin Name:       Hooked Editable Content
  * Plugin URI:        https://wordpress.org/plugins/hooked-editable-content/
  * Description:       Hook editable content onto actions and filters
- * Version:           1.0.0
+ * Version:           1.0.1
  * Author:            Jon Anwyl
  * Author URI:        http://www.sneezingtrees.com
  * License:           GPL-2.0+

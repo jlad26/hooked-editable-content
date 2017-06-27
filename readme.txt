@@ -69,7 +69,7 @@ Click on 'Hooked Editors' in the main menu, then click on 'Re-order hooked edito
 
 Yes. By default, only administrators can add, edit and delete hooked editors. The plugin uses the following custom capabilities, all of which are added only to administrators:
 
-edit_hec_hooks, edit_others_hec_hooks, publish_hec_hooks, read_private_hec_hooks, delete_hec_hooks, delete_private_hec_hooks, delete_published_hec_hooks, delete_others_hec_hooks, edit_private_hec_hooks, edit_published_hec_hooks, edit_hec_hooks.
+edit_hec_hooks, edit_others_hec_hooks, publish_hec_hooks, read_private_hec_hooks, delete_hec_hooks, delete_private_hec_hooks, delete_published_hec_hooks, delete_others_hec_hooks, edit_private_hec_hooks, edit_published_hec_hooks.
 
 You can add some or all of these capabilities to other roles or users. Note that on deactivation the plugin only removes these custom capabilities automatically from the administrator role. If you add capabilities to other users or roles they will not be removed automatically.
 
