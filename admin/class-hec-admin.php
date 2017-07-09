@@ -81,11 +81,22 @@ class Hooked_Editable_Content_Admin {
 		
 		global $post;
 		
-		// JS for hook custom post type.
 		if ( 'post-new.php' == $hook || 'post.php' == $hook ) {
+			// JS for hook custom post type.
 			if ( 'hec_hook' == $post->post_type ) {
 				wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/hec-hook-admin.js', array( 'jquery' ), $this->version, false );
 			}
+			
+			// JS for making ajax call to check hook firing.
+			if ( 'post.php' == $hook ) {
+				if ( ! in_array( $post->post_type, array( 'hec_hook', 'attaachment' ) ) ) {
+					wp_enqueue_script( $this->plugin_name . '_check_hook_firing', plugin_dir_url( __FILE__ ) . 'js/hec-check-hook-firing.js', array( 'jquery' ), $this->version, false );
+					wp_localize_script( $this->plugin_name . '_check_hook_firing', 'hooked_editable_content', array(
+						'hecHookCheckNonce'	=>	wp_create_nonce( 'hec-check-hook-firing' )
+					) );
+				}
+			}
+			
 		// JS for re-ordering hook editors.
 		} elseif ( 'edit.php' == $hook && isset( $post->post_type ) ) {
 			if ( 'hec_hook' == $post->post_type && 'menu_order title' == get_query_var('orderby') ) {
@@ -1015,13 +1026,16 @@ class Hooked_Editable_Content_Admin {
 						// If specific content is hidden for this hook, then only show the editor if the user can edit the hook.
 						if ( ! $hook_info['hide_specific_content'] || current_user_can( 'edit_hec_hook', $hook->ID ) ) {
 
-							?><div class="hec-content-editor-container"><?php
+							?>
+							<div class="hec-content-editor-container">
+							<input type="hidden" class="hec-hook-id" value="<?php echo esc_attr( $hook->ID ); ?>" />
+							<?php
 							
 								// Security.
 								wp_nonce_field( basename( __FILE__ ), 'hec_hook_content_editor_' . $hook->ID . '_nonce' );
 
 								// Display title and description.
-								$this->display_hook_intro_info( $hook, $hook_info );
+								$this->display_hook_intro_info( $hook, $hook_info, $post );
 
 								// Display editor.
 								if ( 'wp' == $hook_info['editor'] ) {
@@ -1070,40 +1084,130 @@ class Hooked_Editable_Content_Admin {
 	}
 	
 	/**
-	 * Display hook title, description and messages if needed.
+	 * Display hook title, description and messages as needed.
 	 *
 	 * @since	1.0.0
 	 * @access	protected
-	 * @param	object	$post	post object
+	 * @param	object	$hook	hook object
+	 * @param	array	$hook_info	hook info post meta
+	 * @param	post	$post	post object
 	 */
-	protected function display_hook_intro_info( $hook, $hook_info ) {
+	protected function display_hook_intro_info( $hook, $hook_info, $post ) {
 		?>
 			<h3 style="margin-bottom: 0.2em">
 				<?php echo __( 'Hooked Editor: ', 'hooked-editable-content' ) . esc_html( $hook->post_title  ); ?>
 			</h3>
+			<div id="hec-hook-fired-msg-<?php echo $hook->ID; ?>" style="margin-bottom: 0.2em; display: none;">
+			<?php
+			$post_group = 'page' == $post->post_type ? __( 'page', 'hooked-editable-content' ) : __( 'post', 'hooked-editable-content' );
+			printf(
+				/* translators: 1: opening span tag 2: closing span tag */
+				__( 'Hook firing %1$sOK%2$s on this %3$s.', 'hooked-editable-content' ),
+				'<span style="font-weight: bold; color: green">',
+				'</span>',
+				$post_group
+			);
+			?>
+			</div>
+			<div id="hec-hook-failed-msg-<?php echo $hook->ID; ?>" style="margin-bottom: 0.2em; display: none;">
+			<?php
+			printf(
+				/* translators: 1: opening span tag 2: closing span tag 3: 'page' / 'post' depending on context 4: 'page' / 'post' depending on context */
+				__( '%1$sWarning%2$s Hook does not appear to fire on this %3$s. Check that the hook name has been entered correctly and appears in this %4$s template.', 'hooked-editable-content' ),
+				'<span style="font-weight: bold; color: red">',
+				'</span>',
+				$post_group,
+				$post_group
+			);
+			?>
+			</div>
 		<?php
-		if ( ! empty( $hook_info['description'] ) ) {
-			?><div  style="margin-bottom: 0.2em"><?php echo esc_html( $hook_info['description'] ); ?></div><?php
-		}
+		// Add in hidden content warning if needed.
 		if ( $hook_info['hide_specific_content'] ) {
 			$edit_hook_link = '<a href="' . get_edit_post_link( $hook->ID ) . '">' . __( 'Edit Hooked Editor', 'hooked-editable-content' ) . '</a>';
 			?>
 			<div style="margin-bottom: 0.2em">
 				<?php
-				echo sprintf(
+				printf(
 					__( '%1$sNB%2$s Content specific to a page / post is currently %3$shidden%4$s for this editor.', 'hooked-editable-content' ),
 					'<span style="font-weight: bold; color: red">',
 					'</span>',
 					'<span style="font-weight: bold; color: red">',
 					'</span>'
-				);
-				?><br />
-				<?php
+				) . ' ';
 				/* translators: Edit hook link */
 				printf( __( 'You can change this setting on the %s screen.', 'hooked-editable-content' ), $edit_hook_link ); ?>
 			</div>
 			<?php
 		}
+		
+		// Display description.
+		if ( ! empty( $hook_info['description'] ) ) {
+			?><div style="margin-bottom: 0.2em"><?php echo esc_html( $hook_info['description'] ); ?></div><?php
+		}
+		
+	}
+	
+	/**
+	 * Process ajax checking of hooks firing.
+	 *
+	 * @since	1.0.1
+	 * @hooked wp_ajax_hec_check_hook_firing
+	 */
+	public static function check_hook_firing() {
+		
+		// Check nonce.
+		check_ajax_referer( 'hec-check-hook-firing', 'hecHookCheckNonce' );
+		
+		// Check we have what we need.
+		if ( ! isset( $_POST['postID'] ) || ! isset( $_POST['hookIds'] ) ) {
+			die(-1);
+		}
+		
+		// Sanitize values and set up return data array.
+		$post_id = intval( $_POST['postID'] );
+		$return_data = array();
+		if ( is_array( $_POST['hookIds'] ) ) {
+			foreach( $_POST['hookIds'] as $hook_id ) {
+				$return_data[ intval( $hook_id ) ] = 0;
+			}
+		}
+
+		// Check capability.
+		if ( ! current_user_can( 'edit_post', $post_id ) ) {
+			die(-1);
+		}
+
+		$preview_link = get_preview_post_link( $post_id );
+		
+		$cookies = array();
+
+		foreach ( $_COOKIE as $name => $value ) {
+			$cookies[] = new WP_Http_Cookie( array( 'name' => $name, 'value' => $value ) );
+		}
+
+		// Get page / post preview content.
+		$request = wp_remote_get( $preview_link, array( 'cookies' => $cookies ) );
+		$response_code = wp_remote_retrieve_response_code( $request );
+
+		// Check we have a valid response code.
+		if ( 200 == $response_code ) {
+		
+			$body = wp_remote_retrieve_body( $request );
+			
+			// Check to see if hooks have fired.
+			if ( ! empty( $return_data ) ) {
+				foreach( $return_data as $hook_id => $value ) {
+					if ( false !== strpos( $body, '<!--hooked-editable-content_' . $hook_id . '_start-->' ) ) {
+						$return_data[ $hook_id ] = 1;
+					}
+				}
+			}
+		
+		}
+		
+		die( json_encode( $return_data ) );
+		
 	}
 	
 	
@@ -1339,7 +1443,7 @@ class Hooked_Editable_Content_Admin {
 	 * @since	1.0.0
 	 * @hooked wp_ajax_hec_hook_ordering
 	 */
-	public static function hec_hook_ajax_ordering() {
+	public static function hook_ajax_ordering() {
 		
 		// Check and make sure we have what we need.
 		if ( empty( $_POST['id'] ) || ( !isset( $_POST['previd'] ) && !isset( $_POST['nextid'] ) ) ) {

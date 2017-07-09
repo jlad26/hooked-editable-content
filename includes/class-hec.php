@@ -45,7 +45,7 @@ class Hooked_Editable_Content {
 	public function __construct() {
 
 		$this->plugin_name = 'hec';
-		$this->version = '1.0.0';
+		$this->version = '1.0.1';
 
 		$this->load_dependencies();
 		$this->set_locale();
@@ -184,6 +184,9 @@ class Hooked_Editable_Content {
 		// Add specific hook content editors (WP and text) to pages and posts.
 		$this->loader->add_action( 'edit_page_form', $plugin_admin, 'add_hook_content_editors', 10 );
 		$this->loader->add_action( 'edit_form_advanced', $plugin_admin, 'add_hook_content_editors', 10 );
+		
+		// Check hook firing via ajax.
+		$this->loader->add_action( 'wp_ajax_hec_check_hook_firing', $plugin_admin, 'check_hook_firing', 10 );
 
 		// Save specific hook content.
 		$this->loader->add_action( 'save_post', $plugin_admin, 'save_hooked_content', 10, 2 );
@@ -198,7 +201,7 @@ class Hooked_Editable_Content {
 		
 		// Handle hook ordering.
 		$this->loader->add_filter( 'views_edit-hec_hook', $plugin_admin, 'hook_sorting_link', 10 );
-		$this->loader->add_action( 'wp_ajax_hec_hook_ordering', $plugin_admin, 'hec_hook_ajax_ordering', 10 );
+		$this->loader->add_action( 'wp_ajax_hec_hook_ordering', $plugin_admin, 'hook_ajax_ordering', 10 );
 		
 	}
 

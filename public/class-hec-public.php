@@ -156,12 +156,16 @@ class Hooked_Editable_Content_Public {
 				// Display content.
 				$output = $this->display_hook_content( $hook, $hook_info, $content, $existing_content );
 				
+				// Html comments for marking plugin content.
+				$comment_start = '<!--hooked-editable-content_' . $hook->ID . '_start-->';
+				$comment_end = '<!--hooked-editable-content_' . $hook->ID . '_end-->';
+				
+				$output = $comment_start . $output . $comment_end;
+				
 				if ( 'filter' == $hook_info['type'] ) {
 					return $output;
 				} else {
-					if ( ! empty( $content ) ) {
-						echo $output;
-					}
+					echo ( empty( $content ) ? $comment_start . $comment_end : $output );
 				}
 				
 			}
@@ -215,7 +219,7 @@ class Hooked_Editable_Content_Public {
 			}
 			
 		}
-
+		
 		return $content;
 	
 	}
