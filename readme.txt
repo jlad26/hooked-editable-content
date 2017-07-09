@@ -93,6 +93,12 @@ You will need to update the settings of your hooked editors so that they are hoo
 
 == Changelog ==
 
+= 1.0.1 =
+
+Release date: 
+
+* Feature: Add messages to hooked editors on all edit post / page screens to show whether hook is firing on that specific post / page.
+
 = 1.0.0 =
 
 Release date: 27 June 2017
