@@ -1129,12 +1129,14 @@ class Hooked_Editable_Content_Admin {
 			<div style="margin-bottom: 0.2em">
 				<?php
 				printf(
+					/* translators: 1: opening span tag 2: closing span tag 3: opening span tag 4: closing span tag */
 					__( '%1$sNB%2$s Content specific to a page / post is currently %3$shidden%4$s for this editor.', 'hooked-editable-content' ),
 					'<span style="font-weight: bold; color: red">',
 					'</span>',
 					'<span style="font-weight: bold; color: red">',
 					'</span>'
-				) . ' ';
+				);
+				echo ' ';
 				/* translators: Edit hook link */
 				printf( __( 'You can change this setting on the %s screen.', 'hooked-editable-content' ), $edit_hook_link ); ?>
 			</div>
