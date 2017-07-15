@@ -18,6 +18,9 @@ if ( ! defined( 'WPINC' ) ) {
 	die;
 }
 
+/*--------------------------------------------------------------------------------------------------*/
+/* Code for integration with Freemius functionality (https://freemius.com/wordpress/insights/) */
+
 // Create a helper function for easy SDK access.
 function hec_fs() {
 	global $hec_fs;
@@ -141,6 +144,9 @@ function hec_fs_uninstall_cleanup() {
 	delete_option('hooked_editable_content_options');
 	
 }
+
+/*--------------------------------------------------------------------------------------------------*/
+/* Main plugin code */
 
 /**
  * The code that runs during plugin activation.

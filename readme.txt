@@ -1,6 +1,6 @@
 === Hooked Editable Content ===
-Contributors: janwyl
-Tags: filter, action, hook, editor
+Contributors: janwyl, freemius
+Tags: filter, action, hook, editor, add slider, add content, modify theme, customize theme
 Requires at least: 4.7
 Tested up to: 4.8
 Stable tag: 1.0.0
@@ -95,9 +95,10 @@ You will need to update the settings of your hooked editors so that they are hoo
 
 = 1.0.1 =
 
-Release date: 
+Release date: 15 July 2017
 
 * Feature: Add messages to hooked editors on all edit post / page screens to show whether hook is firing on that specific post / page.
+* Maintenance: Add in [Freemius](https://freemius.com/wordpress/insights/) functionality for feedback.
 
 = 1.0.0 =
 
