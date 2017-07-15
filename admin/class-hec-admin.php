@@ -1206,6 +1206,9 @@ class Hooked_Editable_Content_Admin {
 				}
 			}
 		
+		} else {
+			// Set return data to empty so no message is given at all about whether hook is firing since page can't be loaded.
+			$return_data = array();
 		}
 		
 		die( json_encode( $return_data ) );
