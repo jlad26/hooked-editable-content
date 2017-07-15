@@ -1027,7 +1027,7 @@ class Hooked_Editable_Content_Admin {
 						if ( ! $hook_info['hide_specific_content'] || current_user_can( 'edit_hec_hook', $hook->ID ) ) {
 
 							?>
-							<div class="hec-content-editor-container">
+							<div class="hec-content-editor-container" style="margin-bottom: 20px">
 							<input type="hidden" class="hec-hook-id" value="<?php echo esc_attr( $hook->ID ); ?>" />
 							<?php
 							
