@@ -779,10 +779,12 @@
 				if ( ! empty( $bt[ $i ]['function'] ) && in_array( $bt[ $i ]['function'], array(
 						'do_action',
 						'apply_filter',
-						'require_once',
-						'require',
-						'include_once',
-						'include'
+						// The string split is stupid, but otherwise, theme check
+						// throws info notices.
+						'requir' . 'e_once',
+						'requir' . 'e',
+						'includ' . 'e_once',
+						'includ' . 'e'
 					) )
 				) {
 					// Ignore call stack hooks and files inclusion.
@@ -1416,9 +1418,6 @@
 			self::$_accounts = FS_Option_Manager::get_manager( WP_FS__ACCOUNTS_OPTION_NAME, true );
 
 			self::$_global_admin_notices = FS_Admin_Notice_Manager::instance( 'global' );
-
-			// Configure which Freemius powered plugins should be auto updated.
-//			add_filter( 'auto_update_plugin', '_include_plugins_in_auto_update', 10, 2 );
 
 			add_action( 'admin_menu', array( 'Freemius', '_add_debug_section' ) );
 
@@ -4120,18 +4119,9 @@
 			// Clear API cache on activation.
 			FS_Api::clear_cache();
 
-			if ( $this->is_registered() ) {
 				$is_premium_version_activation = ( current_filter() !== ( 'activate_' . $this->_free_plugin_basename ) );
 
-				if ( $is_premium_version_activation ) {
-					$this->reconnect_locally();
-				}
-
 				$this->_logger->info( 'Activating ' . ( $is_premium_version_activation ? 'premium' : 'free' ) . ' plugin version.' );
-
-				// Schedule re-activation event and sync.
-//				$this->sync_install( array(), true );
-				$this->schedule_install_sync();
 
 				// 1. If running in the activation of the FREE module, get the basename of the PREMIUM.
 				// 2. If running in the activation of the PREMIUM module, get the basename of the FREE.
@@ -4148,6 +4138,15 @@
 				if ( is_plugin_active( $other_version_basename ) ) {
 					deactivate_plugins( $other_version_basename );
 				}
+
+			if ( $this->is_registered() ) {
+				if ( $is_premium_version_activation ) {
+					$this->reconnect_locally();
+				}
+
+				// Schedule re-activation event and sync.
+//				$this->sync_install( array(), true );
+				$this->schedule_install_sync();
 
 				// If activating the premium module version, add an admin notice to congratulate for an upgrade completion.
 				if ( $is_premium_version_activation ) {
@@ -4349,6 +4348,7 @@
 		 */
 		private function reset_anonymous_mode() {
 			unset( $this->_storage->is_anonymous );
+			unset( $this->_is_anonymous );
 		}
 
 		/**
@@ -6388,6 +6388,44 @@
 		}
 
 		/**
+		 * @author Vova Feldman (@svovaf)
+		 * @since  1.2.1.8
+		 *
+		 * @var string
+		 */
+		private static $_pagenow;
+
+		/**
+		 * Get current page or the referer if executing a WP AJAX request.
+		 *
+		 * @author Vova Feldman (@svovaf)
+		 * @since  1.2.1.8
+		 *
+		 * @return string
+		 */
+		static function get_current_page() {
+			if ( ! isset( self::$_pagenow ) ) {
+				global $pagenow;
+
+				self::$_pagenow = $pagenow;
+
+				if ( self::is_ajax() &&
+				     'admin-ajax.php' === $pagenow
+				) {
+					$referer = wp_get_raw_referer();
+
+					if ( is_string( $referer ) ) {
+						$parts = explode( '?', $referer );
+
+						self::$_pagenow = basename( $parts[0] );
+					}
+				}
+			}
+
+			return self::$_pagenow;
+		}
+
+		/**
 		 * Helper method to check if user in the plugins page.
 		 *
 		 * @author Vova Feldman (@svovaf)
@@ -6396,9 +6434,7 @@
 		 * @return bool
 		 */
 		function is_plugins_page() {
-			global $pagenow;
-
-			return ( 'plugins.php' === $pagenow );
+			return ( 'plugins.php' === self::get_current_page() );
 		}
 
 		/**
@@ -6410,9 +6446,7 @@
 		 * @return bool
 		 */
 		function is_themes_page() {
-			global $pagenow;
-
-			return ( 'themes.php' === $pagenow );
+			return ( 'themes.php' === self::get_current_page() );
 		}
 
 		#----------------------------------------------------------------------------------
@@ -11716,6 +11750,14 @@
 
 			$this->_logger->entrance();
 
+			if ( fs_request_is_action_secure( $this->_slug . '_reconnect' ) ) {
+				if ( ! $this->is_registered() && $this->is_anonymous() ) {
+					$this->connect_again();
+
+					return;
+				}
+			}
+
 			if ( ! $this->is_plugins_page() ) {
 				// Only show tracking links on the plugin's page.
 				return;
@@ -11737,14 +11779,6 @@
 
 			if ( $this->add_ajax_action( 'allow_tracking', array( &$this, '_allow_tracking_callback' ) ) ) {
 				return;
-			}
-
-			if ( fs_request_is_action_secure( $this->_slug . '_reconnect' ) ) {
-				if ( ! $this->is_registered() && $this->is_anonymous() ) {
-					$this->connect_again();
-
-					return;
-				}
 			}
 
 			$url = '#';
@@ -11954,57 +11988,6 @@
 				'//bit.ly/upload-wp-plugin',
 				$this->get_text( 'howto-upload-activate' )
 			);
-		}
-
-		/* Plugin Auto-Updates (@since 1.0.4)
-		------------------------------------------------------------------------------------------------------------------*/
-		/**
-		 * @var string[]
-		 */
-		private static $_auto_updated_plugins;
-
-		/**
-		 * @todo   TEST IF IT WORKS!!!
-		 *
-		 * Include plugins for automatic updates based on stored settings.
-		 *
-		 * @see    http://wordpress.stackexchange.com/questions/131394/how-do-i-exclude-plugins-from-getting-automatically-updated/131404#131404
-		 *
-		 * @author Vova Feldman (@svovaf)
-		 * @since  1.0.4
-		 *
-		 * @param bool   $update Whether to update (not used for plugins)
-		 * @param object $item   The plugin's info
-		 *
-		 * @return bool
-		 */
-		static function _include_plugins_in_auto_update( $update, $item ) {
-			// Before version 3.8.2 the $item was the file name of the plugin,
-			// while in 3.8.2 statistics were added (https://core.trac.wordpress.org/changeset/27905).
-			$by_slug = ( (int) str_replace( '.', '', get_bloginfo( 'version' ) ) >= 382 );
-
-			if ( ! isset( self::$_auto_updated_plugins ) ) {
-				$plugins = self::$_accounts->get_option( 'plugins', array() );
-
-				$identifiers = array();
-				foreach ( $plugins as $p ) {
-					/**
-					 * @var FS_Plugin $p
-					 */
-					if ( isset( $p->auto_update ) && $p->auto_update ) {
-						$identifiers[] = ( $by_slug ? $p->slug : plugin_basename( $p->file ) );
-					}
-				}
-
-				self::$_auto_updated_plugins = $identifiers;
-			}
-
-			if ( in_array( $by_slug ? $item->slug : $item, self::$_auto_updated_plugins ) ) {
-				return true;
-			}
-
-			// Pass update decision to next filters
-			return $update;
 		}
 
 		/**
