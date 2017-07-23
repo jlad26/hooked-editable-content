@@ -93,6 +93,12 @@ You will need to update the settings of your hooked editors so that they are hoo
 
 == Changelog ==
 
+= 1.0.2 =
+
+Release date: 
+
+* Maintenance: Update to latest version of Admin Notice Manager.
+
 = 1.0.1 =
 
 Release date: 15 July 2017
