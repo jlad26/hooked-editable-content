@@ -1,13 +1,13 @@
 === Hooked Editable Content ===
 Contributors: janwyl, freemius
-Tags: filter, action, hook, editor, add slider, add content, modify theme, customize theme
+Tags: filter, action, hook, editor, add slider, add content, modify theme, customize theme, modify template, customize template
 Requires at least: 4.7
 Tested up to: 4.8
 Stable tag: 1.0.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Creates editors on Edit Post and Edit Page screens for content to be hooked to actions and filters
+Creates WP or text editors on Edit Post and Edit Page screens for content to be hooked into actions and filters.
 
 == Description ==
 
@@ -15,8 +15,9 @@ An easy way to add content to actions or filters in your theme - and allow users
 
 = Example uses =
 
-* Add a slider to your site just below the main navigation menu and have different images in the slider on some pages. Or maybe have some pages without a slider at all.
+* Add a slider or image gallery to your site just below the main navigation menu and have the images varying on different pages. Or maybe have some pages without any images at all.
 * Add text in the site footer on some pages, but not on all pages. Or maybe different text on different pages.
+* Add an additional editor to all pages / posts that allows authors / editors to add in a banner notice to any given page / post if they wish.
 
 You can also see some live [explanatory examples](http://www.sneezingtrees.com/plugins/hooked-editable-content/examples/).
 
@@ -98,6 +99,7 @@ You will need to update the settings of your hooked editors so that they are hoo
 Release date: 
 
 * Maintenance: Update to latest version of Admin Notice Manager.
+* Maintenance: Add in rating request.
 
 = 1.0.1 =
 

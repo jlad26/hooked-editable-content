@@ -162,6 +162,10 @@ class Hooked_Editable_Content {
 		// Plugin upgrade processes.
 		$this->loader->add_action( 'plugins_loaded', $plugin_admin, 'check_version', 10 );
 		
+		// Rating request.
+		$this->loader->add_action( 'admin_init', $plugin_admin, 'check_rating_request', 10 );
+		$this->loader->add_action( 'hec_user_notice_dismissed_rating_request_prevent_rating_request', $plugin_admin, 'prevent_rating_request', 10 );
+		
 		// Add hook meta boxes.
 		$this->loader->add_action( 'add_meta_boxes_hec_hook', $plugin_admin, 'add_hook_meta_boxes', 10 );
 		

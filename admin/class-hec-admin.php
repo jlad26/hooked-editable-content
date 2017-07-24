@@ -338,6 +338,186 @@ class Hooked_Editable_Content_Admin {
 	}
 	
 	/**
+	 * Display a rating request if it is appropriate to do so.
+	 *
+	 * @since	1.0.2
+	 * @hooked admin_init
+	 */
+	public function check_rating_request() {
+		
+		// Only check for users that can manage plugins.
+		if ( ! current_user_can( 'activate_plugins' ) ) {
+			return;
+		}
+		
+		// Get published hooked editors.
+		$published_editors = $this->utilities->get_hooks();
+		
+		$request_rating = false;
+		
+		if ( ! empty( $published_editors ) ) {
+			
+			$options = get_option( 'hooked_editable_content_storage' );
+			$user_id = get_current_user_id();
+			
+			foreach ( $published_editors as $published_editor ) {
+				
+				$editor_has_live_content = false;
+				$hook_info = $this->utilities->get_hook_info( $published_editor->ID );
+				
+				// Check if editor has live generic content. 
+				if ( ! empty( $published_editor->post_content ) ) {
+					if ( ! $hook_info['hide_generic_content'] ) {
+						$editor_has_live_content = true;
+					}
+				}
+				
+				// If no live generic content, check for live specific content.
+				if ( ! $editor_has_live_content ) {
+					if ( ! $hook_info['hide_specific_content'] ) {
+						$posts_with_specific_content = $this->get_posts_with_specific_content( $published_editor->ID, array( 'publish' ) );
+						if ( ! empty( $posts_with_specific_content ) ) {
+							$editor_has_live_content = true;
+						}
+					}
+				}
+				
+				if ( $editor_has_live_content ) {
+					
+					// Check whether timing is right to request a rating.
+					$current_datetime = new DateTime( null, new DateTimeZone( 'UTC' ) );
+					
+					if ( ! isset( $options['request_rating_timings'][ $user_id ] ) ) { // If this is the first request...
+						
+						// Check whether we are 2 weeks or more since the hooked editor was last modified
+						$editor_modified = new DateTime( $published_editor->post_modified_gmt );
+						$datetime_check = $editor_modified->modify( '+14 day' );
+						
+						if ( $current_datetime > $datetime_check ) {
+							$request_rating = true;
+							break;
+						}
+						
+					} else { // This is not the first request.
+						
+						// Only make request if timing is not set to 0 and current date is 1 month after last request
+						if ( $options['request_rating_timings'][ $user_id ] ) {
+							
+							$last_request_datetime = new Datetime( $options['request_rating_timings'][ $user_id ], new DateTimeZone( 'UTC' ) );
+							$datetime_check = $last_request_datetime->modify( '+1 month' );
+							
+							if ( $current_datetime > $datetime_check ) {
+								$request_rating = true;
+								break;
+							}
+							
+						}
+						
+					}
+					
+				}
+				
+			}
+
+		}
+		
+		if ( $request_rating ) {
+			$this->request_rating( $user_id );
+		}
+		
+	}
+	
+	/**
+	 * Add user notice requesting rating.
+	 *
+	 * @since	1.0.2
+	 * @access	protected
+	 * @param	int	$user_id	User ID
+	 */
+	protected function request_rating( $user_id ) {
+		
+		$options = get_option( 'hooked_editable_content_storage' );
+		
+		// If this is the first time message is being displayed, record the date - otherwise set to 0 to prevent further display.
+		if ( ! isset( $options['request_rating_timings'][ $user_id ] ) ) {
+			
+			$current_datetime = new DateTime( null, new DateTimeZone( 'UTC' ) );
+			$options['request_rating_timings'][ $user_id ] = $current_datetime->format( 'Y-m-d' );
+			
+			// Set the message.
+			$rating_message = sprintf(
+				/* translators: 1: opening html tag 2: closing html tag */
+				__( 'Hi, it looks like you\'re using our %1$sHooked Editable Content%2$s plugin to display some live content – that\'s awesome! If you\'re finding it useful and you have a moment, we\'d be massively grateful if you helped spread the word by rating the plugin on WordPress.', 'hooked-editable-content' ),
+				'<strong>',
+				'</strong>'
+			) . '<br />';
+			
+		} else {
+			
+			// Set options to indicate no more requests as this is the second.
+			$options['request_rating_timings'][ $user_id ]= 0;
+
+			// Set the message.
+			$rating_message = sprintf(
+				/* translators: 1: opening html tag 2: closing html tag */
+				__( 'Hi, it looks like you\'re still using our %1$sHooked Editable Content%2$s plugin to display some live content – great! If you\'re finding it useful and you have a moment, we\'d really appreciate if you rated the plugin on WordPress.', 'hooked-editable-content' ),
+				'<strong>',
+				'</strong>'
+			) . '<br />';
+			
+		}
+		
+		update_option( 'hooked_editable_content_storage', $options );
+		
+		// Add the notice.
+
+		$review_link = 'https://wordpress.org/support/plugin/hooked-editable-content/reviews/';
+		
+		// First option - give a review.
+		$rating_message .= '<span style="display: inline-block">' . HEC_Admin_Notice_Manager::dismiss_on_redirect_link( array(
+			'content'	=>	__( 'Sure, I\'d be happy to', 'hooked-editable-content' ),
+			'redirect'	=>	$review_link,
+			'new_tab'	=>	true
+		) ) . ' &nbsp;|&nbsp;&nbsp;</span>';
+		
+		// Second option - not now.
+		$rating_message .= '<span style="display: inline-block">' . HEC_Admin_Notice_Manager::dismiss_event_button( array(
+			'content'	=>	__( 'Nope, maybe later', 'hooked-editable-content' ),
+			'event'		=>	''
+		) ) . ' &nbsp;|&nbsp;&nbsp;</span>';
+		
+		// Third option - already reviewed.
+		$rating_message .= '<span style="display: inline-block">' . HEC_Admin_Notice_Manager::dismiss_event_button( array(
+			'content'	=>	__( 'I already did', 'hooked-editable-content' ),
+			'event'		=>	'prevent_rating_request'
+		) ) . '</span>';
+		
+		HEC_Admin_Notice_Manager::add_notice( array(
+			'id'			=>	'rating_request',
+			'message'		=>	$rating_message,
+			'type'			=>	'info',
+			'user_ids'		=>	array( $user_id ),
+			'screen_ids'	=>	array( 'edit-page', 'edit-post', 'edit-hec_hook', 'plugins', 'dashboard' ),
+			'persistent'	=>	true,
+			'dismissable'	=>	false
+		) );
+		
+	}
+	
+	/**
+	 * Prevent further rating requests for a given user.
+	 *
+	 * @since	1.0.2
+	 * @param	int		$user_id	ID
+	 * @hooked hec_user_notice_dismissed_rating_request_prevent_rating_request
+	 */
+	public function prevent_rating_request( $user_id ) {
+		$options = get_option( 'hooked_editable_content_storage' );
+		$options['request_rating_timings'][ $user_id ] = 0;
+		update_option( 'hooked_editable_content_storage', $options );
+	}
+	
+	/**
 	 * Add meta boxes for the hec_hook custom post type.
 	 *
 	 * @since	1.0.0
@@ -970,22 +1150,27 @@ class Hooked_Editable_Content_Admin {
 	 * @since	1.0.0
 	 * @access	protected
 	 * @param	int		$hook_id		id of hook
+	 * @param	array	$statuses		Statuses of posts to return. Default is all statuses.
 	 * @return	array	Array of post objects
 	 */
-	protected function get_posts_with_specific_content( $hook_id ) {
+	protected function get_posts_with_specific_content( $hook_id, $statuses = array() ) {
 
+		if ( empty( $statuses ) ) {
+			$statuses = array(
+				'publish',
+				'future',
+				'draft',
+				'pending',
+				'private',
+				'trash',
+				'auto-draft',
+				'inherit'
+			);
+		}
+		
 		$args = array(
 			'posts_per_page'	=>	-1,
-			'post_status'		=>	array(
-										'publish',
-										'future',
-										'draft',
-										'pending',
-										'private',
-										'trash',
-										'auto-draft',
-										'inherit'
-									),
+			'post_status'		=>	$statuses,
 			'post_type'			=>	'any',
 			'meta_query'		=>	array(
 										array(
