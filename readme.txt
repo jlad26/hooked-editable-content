@@ -96,7 +96,7 @@ You will need to update the settings of your hooked editors so that they are hoo
 
 = 1.0.2 =
 
-Release date: 
+Release date: 24 July 2017
 
 * Maintenance: Update to latest version of Admin Notice Manager.
 * Maintenance: Add in rating request.
