@@ -198,8 +198,20 @@ class Hooked_Editable_Content_Public {
 		
 		// Apply 'the_content' filter if WP Editor has been used.
 		if ( 'wp' == $hook_info['editor'] ) {
+			
+			$wpautop = false;
+			if ( has_filter( 'the_content', 'wpautop' ) ) {
+				$wpautop = true;
+				remove_filter( 'the_content', 'wpautop' );
+			}
+			
 			$content = apply_filters( 'the_content', $content );
 			$content = str_replace( ']]>', ']]&gt;', $content );
+			
+			if ( $wpautop ) {
+				add_filter( 'the_content', 'wpautop' );
+			}
+			
 		}
 		$content = $opening_tag . $content . $closing_tag;
 

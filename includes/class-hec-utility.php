@@ -48,6 +48,7 @@ class Hooked_Editable_Content_Utility {
 			'priority'					=>	array(),
 			'type'						=>	'action',
 			'editor'					=>	'wp',
+			'disable_wpautop'			=>	0,
 			'hide_specific_content'		=>	0,
 			'hide_generic_content'		=>	0,
 			'permissions'				=>	array(),

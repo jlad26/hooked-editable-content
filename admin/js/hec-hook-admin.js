@@ -28,11 +28,22 @@
 		$( '#hec-hook-type' ).change( function() {
 			showHideContentDropdown()
 		});
-		
 		showHideContentDropdown();
+		
+		// Show / hide Disble wpautop checkbox depending on choice of editor
+		function showHideWpautopChkbox() {
+			var container = $( '#hec-hook-disable_wpautop' ).closest( 'div' );
+			if ( 'wp' == $( '#hec-hook-editor' ).val() ) {
+				container.removeClass( 'hide-if-js' );
+			} else {
+				container.addClass( 'hide-if-js' );
+			}
+		}
+		showHideWpautopChkbox();
 		
 		// Switch editor types on change of dropdown
 		$( '#hec-hook-editor' ).change( function() {
+			showHideWpautopChkbox();
 			var editor = $(this).val();
 			var hideEditor, contentContainer, newContainer;
 			if ( 'text' == editor ) {

@@ -719,6 +719,11 @@ class Hooked_Editable_Content_Admin {
 				<option value="text" <?php selected( $hook_info['editor'], 'text' ); ?>><?php echo _x( 'Text', 'editor choice dropdown', 'hooked-editable-content' ); ?></option>
 			</select>
 		</div>
+		<div class="hec-field hec-chkbox-input hide-if-js">
+			<label for="hec-hook-disable_wpautop"><?php _e( 'Disable wpautop', 'hooked-editable-content' ); ?></label><input id="hec-hook-disable_wpautop" type="checkbox" name="hec_hook[disable_wpautop]" value="1" <?php checked( $hook_info['disable_wpautop'] ); ?> />
+			<span><?php _e( 'Whether to disable the automatic replacement of line breaks with &lt;p&gt; tags.', 'hooked-editable-content' ); ?></span>
+			<noscript><?php _e( 'Only used for WP Editor, not text editor.', 'hooked-editable-content' ); ?></noscript>
+		</div>
 		<div class="hec-field hec-select-input">
 			<label for="hec-hook-type"><?php _e( 'Hook type', 'hooked-editable-content' ); ?></label><select id="hec-hook-type" name="hec_hook[type]" />
 				<option value="action" <?php selected( $hook_info['type'], 'action' ); ?>><?php _e( 'Action', 'hooked-editable-content' ); ?></option>
@@ -1019,6 +1024,7 @@ class Hooked_Editable_Content_Admin {
 						
 					case 'hide_specific_content' :
 					case 'hide_generic_content' :
+					case 'disable_wpautop' :
 						$value = absint( $posted_value );
 						if ( $value > 0 ) {
 							$value = 1;
