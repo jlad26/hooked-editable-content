@@ -7,7 +7,7 @@ Stable tag: 1.0.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Creates WP or text editors on Edit Post and Edit Page screens for content to be hooked into actions and filters.
+Create WP or text editors on Edit Post and Edit Page screens for content to be hooked into actions and filters.
 
 == Description ==
 
