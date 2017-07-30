@@ -94,6 +94,12 @@ You will need to update the settings of your hooked editors so that they are hoo
 
 == Changelog ==
 
+= 1.0.3 =
+
+Release date: 
+
+* Feature: Add ability to disable wpautop on hooked editors.
+
 = 1.0.2 =
 
 Release date: 24 July 2017

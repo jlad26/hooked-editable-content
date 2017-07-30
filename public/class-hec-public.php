@@ -200,7 +200,7 @@ class Hooked_Editable_Content_Public {
 		if ( 'wp' == $hook_info['editor'] ) {
 			
 			$wpautop = false;
-			if ( has_filter( 'the_content', 'wpautop' ) ) {
+			if ( $hook_info['disable_wpautop'] && has_filter( 'the_content', 'wpautop' ) ) {
 				$wpautop = true;
 				remove_filter( 'the_content', 'wpautop' );
 			}
