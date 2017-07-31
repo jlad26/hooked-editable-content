@@ -3,7 +3,7 @@ Contributors: janwyl, freemius
 Tags: filter, action, hook, editor, add slider, add content, modify theme, customize theme, modify template, customize template
 Requires at least: 4.7
 Tested up to: 4.8
-Stable tag: 1.0.2
+Stable tag: 1.0.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -96,7 +96,7 @@ You will need to update the settings of your hooked editors so that they are hoo
 
 = 1.0.3 =
 
-Release date: 
+Release date: 31 July 2017
 
 * Feature: Add ability to disable wpautop on hooked editors.
 
