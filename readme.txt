@@ -3,7 +3,7 @@ Contributors: janwyl, freemius
 Tags: filter, action, hook, editor, add slider, add content, modify theme, customize theme, modify template, customize template
 Requires at least: 4.7
 Tested up to: 4.8
-Stable tag: 1.0.3
+Stable tag: 1.0.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -93,6 +93,12 @@ If you switch to a new theme you won't lose any of the hooked content, but it wi
 You will need to update the settings of your hooked editors so that they are hooked to actions / filters in your new theme. Note that you can hook an editor to more than one hook, so if you're switching between themes a lot for some reason, you could hook an editor to one hook in one theme and an equivalent hook in another.
 
 == Changelog ==
+
+= 1.0.4 =
+
+Release date: 
+
+* Maintenance: Don't remove whitespace when sanitizing hooked text editor content.
 
 = 1.0.3 =
 

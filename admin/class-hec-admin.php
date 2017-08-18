@@ -1493,7 +1493,7 @@ class Hooked_Editable_Content_Admin {
 	 * @return	string					sanitized content
 	 */
 	protected function sanitize_text_editor_content( $content ) {
-		return str_replace( array( "\r", "\n"), ' ', wp_strip_all_tags( wp_kses_post( $content ) ) );
+		return str_replace( array( "\r", "\n"), ' ', strip_tags( wp_kses_post( $content ) ) );
 	}
 	
 	/**
