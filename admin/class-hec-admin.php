@@ -55,16 +55,16 @@ class Hooked_Editable_Content_Admin {
 	 */
 	public function enqueue_styles( $hook ) {
 
-		global $post;
+		global $post_type;
 		
 		// Stylesheet for hook custom post type.
 		if ( $hook == 'post-new.php' || $hook == 'post.php' ) {
-			if ( 'hec_hook' == $post->post_type ) {
+			if ( 'hec_hook' == $post_type ) {
 				wp_enqueue_style( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'css/hec-hook-admin.css', array(), $this->version, 'all' );
 			}
 		// Stylesheet for re-ordering hook editors.
-		} elseif ( 'edit.php' == $hook && isset( $post->post_type ) ) {
-			if ( 'hec_hook' == $post->post_type && 'menu_order title' == get_query_var('orderby') ) {
+		} elseif ( 'edit.php' == $hook && isset( $post_type ) ) {
+			if ( 'hec_hook' == $post_type && 'menu_order title' == get_query_var('orderby') ) {
 				wp_enqueue_style( $this->plugin_name . '-hook-ordering', plugin_dir_url( __FILE__ ) . 'css/hec-hook-ordering.css', array(), $this->version, 'all' );
 			}
 		}
