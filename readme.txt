@@ -99,6 +99,7 @@ You will need to update the settings of your hooked editors so that they are hoo
 Release date: 
 
 * Maintenance: Don't remove whitespace when sanitizing hooked text editor content.
+* Maintenance: Make enqueueing of scripts reliable.
 
 = 1.0.3 =
 

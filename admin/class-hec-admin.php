@@ -79,17 +79,17 @@ class Hooked_Editable_Content_Admin {
 	 */
 	public function enqueue_scripts( $hook ) {
 		
-		global $post;
+		global $post_type;
 		
 		if ( 'post-new.php' == $hook || 'post.php' == $hook ) {
 			// JS for hook custom post type.
-			if ( 'hec_hook' == $post->post_type ) {
+			if ( 'hec_hook' == $post_type ) {
 				wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/hec-hook-admin.js', array( 'jquery' ), $this->version, false );
 			}
 			
 			// JS for making ajax call to check hook firing.
 			if ( 'post.php' == $hook ) {
-				if ( ! in_array( $post->post_type, array( 'hec_hook', 'attaachment' ) ) ) {
+				if ( ! in_array( $post_type, array( 'hec_hook', 'attachment' ) ) ) {
 					wp_enqueue_script( $this->plugin_name . '_check_hook_firing', plugin_dir_url( __FILE__ ) . 'js/hec-check-hook-firing.js', array( 'jquery' ), $this->version, false );
 					wp_localize_script( $this->plugin_name . '_check_hook_firing', 'hooked_editable_content', array(
 						'hecHookCheckNonce'	=>	wp_create_nonce( 'hec-check-hook-firing' )
@@ -98,8 +98,8 @@ class Hooked_Editable_Content_Admin {
 			}
 			
 		// JS for re-ordering hook editors.
-		} elseif ( 'edit.php' == $hook && isset( $post->post_type ) ) {
-			if ( 'hec_hook' == $post->post_type && 'menu_order title' == get_query_var('orderby') ) {
+		} elseif ( 'edit.php' == $hook && isset( $post_type ) ) {
+			if ( 'hec_hook' == $post_type && 'menu_order title' == get_query_var('orderby') ) {
 				wp_enqueue_script( $this->plugin_name . '-hook-ordering', plugin_dir_url( __FILE__ ) . 'js/hec-hook-ordering.js', array( 'jquery', 'jquery-ui-sortable' ), $this->version, false );
 			}
 		}
