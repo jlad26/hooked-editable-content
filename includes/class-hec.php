@@ -201,7 +201,6 @@ class Hooked_Editable_Content {
 		// Add columns to hook posts list table.
 		$this->loader->add_action( 'manage_hec_hook_posts_columns', $plugin_admin, 'manage_hooks_columns', 10 );
 		$this->loader->add_action( 'manage_hec_hook_posts_custom_column', $plugin_admin, 'manage_hooks_custom_column', 10 );
-		$this->loader->add_action( 'manage_edit-hec_hook_sortable_columns', $plugin_admin, 'manage_hooks_sortable_columns', 10 );
 		
 		// Handle hook ordering.
 		$this->loader->add_filter( 'views_edit-hec_hook', $plugin_admin, 'hook_sorting_link', 10 );

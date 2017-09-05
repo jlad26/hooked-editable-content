@@ -1593,22 +1593,6 @@ class Hooked_Editable_Content_Admin {
 	}
 	
 	/**
-	 * Make custom columns sortable in hooks posts list.
-	 *
-	 * @since	1.0.0
-	 * @param	array		$columns		sortable columns
-	 * @return	array						sortable columns
-	 * @hooked manage_edit-hec_hook_sortable_columns
-	 */
-	public function manage_hooks_sortable_columns( $columns ) {
-		$new_columns = array(
-			'hook_name'	=> 'hook_name',
-			'hook_type'	=> 'hook_type'
-		);
-		return array_merge( $columns, $new_columns );
-	}
-	
-	/**
 	 * Hook sorting link.
 	 *
 	 * @since	1.0.0

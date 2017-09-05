@@ -100,6 +100,7 @@ Release date:
 
 * Maintenance: Don't remove whitespace when sanitizing hooked text editor content.
 * Maintenance: Make enqueueing of scripts reliable.
+* Maintenance: Remove non-functioning sorting of editors by column.
 
 = 1.0.3 =
 
