@@ -101,6 +101,7 @@ Release date:
 * Maintenance: Don't remove whitespace when sanitizing hooked text editor content.
 * Maintenance: Make enqueueing of scripts reliable.
 * Maintenance: Remove non-functioning sorting of editors by column.
+* Bug fix: Fix "Can't use method return value" error for php < 5.5.
 
 = 1.0.3 =
 
