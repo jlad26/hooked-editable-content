@@ -308,7 +308,7 @@ class Hooked_Editable_Content_Admin {
 	}
 	
 	/**
-	 * Check plugin version and run upgrade processes on upgrade.
+	 * Check plugin version and run upgrade / first activation processes as appropriate.
 	 *
 	 * @since	1.0.0
 	 * @hooked plugins_loaded
@@ -321,10 +321,43 @@ class Hooked_Editable_Content_Admin {
 			$options['version'] = $this->version;
 			update_option( 'hooked_editable_content_options', $options );
 			
-			// Run any plugin upgrade actions on admin init.
-			add_action( 'admin_init', array( $this, 'plugin_upgrade_actions' ), $prev_version );
+			if ( ! $prev_version ) {
+				// Run any first activation actions.
+				//add_action( 'admin_init', array( $this, 'plugin_first_activation_actions' ) );
+				$this->plugin_first_activation_actions();
+			} else {
+				// Run any plugin upgrade actions on admin init.
+				add_action( 'admin_init', array( $this, 'plugin_upgrade_actions' ), $prev_version );
+			}
 			
 		}
+	}
+	
+	/**
+	 * Processes to run on plugin first activation.
+	 *
+	 * @since	1.1.0
+	 */
+	private function plugin_first_activation_actions() {
+		
+		// Add greeting and guidance message.
+		$notice_args = array(
+			'id'					=>	'greeting_on_installation',
+			'type'					=>	'success',
+			'message'				=>	sprintf(
+											/* translators: 1: opening style tag 2: closing style tag 3: opening anchor tag 4: closing anchor tag */
+											__( '%1$sHooked Editable Content%2$s activated successfully - thanks for giving it a try! You can dive right in and create your first Hooked Content Editor here. It may be worth referring to some %3$sexamples%4$s as it\'s probably the best way to understand how to use the plugin. Hope you find it useful...', 'bulk-attachment-download' ),
+											'<strong>',
+											'</strong>',
+											'<a href="https://www.sneezingtrees.com/plugins/hooked-editable-content/examples/" target="_blank">',
+											'</a>'
+										),
+			'persistent'			=>	true,
+			'no_js_dismissable'		=>	true,
+			'screen_ids'			=>	array( 'edit-hec_hook' )
+		);
+		HEC_Admin_Notice_Manager::add_notice( $notice_args );
+		
 	}
 	
 	/**
@@ -334,6 +367,8 @@ class Hooked_Editable_Content_Admin {
 	 * @param	string		$prev_version	Previous version of plugin
 	 */
 	public function plugin_upgrade_actions( $prev_version ) {
+		
+		
 		
 	}
 	

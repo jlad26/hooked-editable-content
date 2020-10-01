@@ -43,9 +43,12 @@ class Hooked_Editable_Content {
 	 * @since    1.0.0
 	 */
 	public function __construct() {
-
+		if ( defined( 'HEC_VERSION' ) ) {
+			$this->version = HEC_VERSION;
+		} else {
+			$this->version = '1.0.0';
+		}
 		$this->plugin_name = 'hec';
-		$this->version = '1.1.0';
 
 		$this->load_dependencies();
 		$this->set_locale();
