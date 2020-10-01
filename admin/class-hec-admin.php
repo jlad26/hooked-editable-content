@@ -930,13 +930,15 @@ class Hooked_Editable_Content_Admin {
 	 * Get custom post types that are potentially valid for displaying hook editors.
 	 *
 	 * @since	1.1.0
-	 * return	array		array of post types
+	 * return	array		array of post type objects
 	 */
 	private function get_valid_custom_post_types() {
 		
 		// Get all post types excluding revisions and nav_menu_items.
-		$post_types = get_post_types( array( '_builtin' => false ) );
-		$post_types = array_merge( array( 'attachment' => 'attachment' ), $post_types );
+		$post_types = get_post_types( array(), 'objects' );
+		st_error_log($post_types);
+		unset( $post_types['revision'] );
+		unset( $post_types['nav_menu_item'] );
 		unset( $post_types['hec_hook'] );
 		
 		return $post_types;
@@ -963,22 +965,24 @@ class Hooked_Editable_Content_Admin {
 		?>
 <p>
 	<input id="hec-hook-incl-post-type-page" type="checkbox" name="hec_hook[incl_post_types][page]" value="1" <?php checked( isset( $hook_info['incl_post_types']['page'] ) ); ?>/>
-	<label for="hec-hook-incl-post-type-page">page</label>
+	<label for="hec-hook-incl-post-type-page">Pages</label>
 </p>
 <p>
 	<input id="hec-hook-incl-post-type-post" type="checkbox" name="hec_hook[incl_post_types][post]" value="1" <?php checked( isset( $hook_info['incl_post_types']['post'] ) ); ?>/>
-	<label for="hec-hook-incl-post-type-post">post</label>
+	<label for="hec-hook-incl-post-type-post">Posts</label>
 </p>
 <div class="hec-more-post-types">
 	<div class="hec-more-post-types-text"><?php _e( 'Custom post types', 'hooked-editable-content' ); ?></div>
 	<?php
 		// Get valid custom post types.
-		$post_types = $this->get_valid_custom_post_types();	
-		foreach ( $post_types as $post_type ) {
+		$post_types = $this->get_valid_custom_post_types();
+		unset( $post_types['page'] );
+		unset( $post_types['post'] );
+		foreach ( $post_types as $post_type => $post_type_object ) {
 		?>
-<p>
+<p title="<?php echo $post_type; ?>">
 	<input id="hec-hook-incl-post-type-<?php echo $post_type; ?>" type="checkbox" name="hec_hook[incl_post_types][<?php echo $post_type; ?>]" value="1" <?php checked( isset( $hook_info['incl_post_types'][ $post_type ] ) ); ?>/>
-	<label for="hec-hook-incl-post-type-<?php echo $post_type; ?>"><?php echo $post_type; ?></label>
+	<label for="hec-hook-incl-post-type-<?php echo $post_type; ?>"><?php echo $post_type_object->label; ?></label>
 </p>
 		<?php
 		} ?>
@@ -1140,12 +1144,9 @@ class Hooked_Editable_Content_Admin {
 			$hook_info['permissions'] = $current_permissions;
 			
 			// Sanitize and update incl_post_types data.
-			$potential_post_types = array_merge(
-				array( 'page' => 'page', 'post' => 'post' ),
-				$this->get_valid_custom_post_types()
-			);
+			$potential_post_types = $this->get_valid_custom_post_types();
 			$hook_info['incl_post_types'] = array();
-			foreach ( $potential_post_types as $potential_post_type ) {
+			foreach ( $potential_post_types as $potential_post_type => $postential_post_type_object ) {
 				if ( isset( $_POST['hec_hook']['incl_post_types'][ $potential_post_type ] ) ) {
 					$hook_info['incl_post_types'][ $potential_post_type ] = 1;
 				}
