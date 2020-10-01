@@ -74,16 +74,16 @@ edit_hec_hooks, edit_others_hec_hooks, publish_hec_hooks, read_private_hec_hooks
 
 You can add some or all of these capabilities to other roles or users. Note that on deactivation the plugin only removes these custom capabilities automatically from the administrator role. If you add capabilities to other users or roles they will not be removed automatically.
 
-= Can I prevent a hooked editor appearing on certain post types? =
+= Can I prevent / enable a hooked editor appearing on certain post types? =
 
-Yes, by including the post type in the 'Excluded post types' meta box when editing the hooked editor. You can also exclude a post type from all hooked editors using the filter `hec_excluded_post_types`:
+Yes, by selecting or de-selecting the post type in the 'Included post types' meta box when editing the hooked editor. You can also filter the included post types using the filter `hec_excluded_post_types`:
 
 `
-function mytheme_exclude_hooked_editors( $excluded_post_types, $hooked_editor, $hooked_editor_info ) {
-	$excluded_post_types[] = 'my_custom_post_type';
-	return $excluded_post_types;
+function mytheme_include_my_cpt( $included_post_types, $hooked_editor, $hooked_editor_info ) {
+	$included_post_types[] = 'my_custom_post_type';
+	return $included_post_types;
 }
-add_filter( 'hec_excluded_post_types', 'mytheme_exclude_hooked_editors', 10, 3 );
+add_filter( 'hec_included_post_types', 'mytheme_include_my_cpt', 10, 3 );
 `
 
 = What happens if I change theme? =
@@ -94,14 +94,16 @@ You will need to update the settings of your hooked editors so that they are hoo
 
 == Changelog ==
 
-= 1.0.4 =
+= 1.1.0 =
 
 Release date: 
 
+* Bug fix: Make sure Hooked Content Editors are displayed with block editor when on edit post.
+* Feature: Change from defining excluded post types to included post types
+* Feature: Add hec_display_hook_content filter so that display on individual pages / archives can be turned on / off
 * Maintenance: Don't remove whitespace when sanitizing hooked text editor content.
 * Maintenance: Make enqueueing of scripts reliable.
 * Maintenance: Remove non-functioning sorting of editors by column.
-* Bug fix: Fix "Can't use method return value" error for php < 5.5.
 
 = 1.0.3 =
 

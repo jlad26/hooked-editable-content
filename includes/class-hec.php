@@ -45,7 +45,7 @@ class Hooked_Editable_Content {
 	public function __construct() {
 
 		$this->plugin_name = 'hec';
-		$this->version = '1.0.4';
+		$this->version = '1.1.0';
 
 		$this->load_dependencies();
 		$this->set_locale();
@@ -166,7 +166,7 @@ class Hooked_Editable_Content {
 		$this->loader->add_action( 'admin_init', $plugin_admin, 'check_rating_request', 10 );
 		$this->loader->add_action( 'hec_user_notice_dismissed_rating_request_prevent_rating_request', $plugin_admin, 'prevent_rating_request', 10 );
 		
-		// Add hook meta boxes.
+		// Add hook meta boxes to hec_hook post type.
 		$this->loader->add_action( 'add_meta_boxes_hec_hook', $plugin_admin, 'add_hook_meta_boxes', 10 );
 		
 		// Move hook meta boxes to above default editor.
@@ -186,8 +186,7 @@ class Hooked_Editable_Content {
 		$this->loader->add_filter( 'post_updated_messages', $plugin_admin, 'add_post_updated_messages', 10 );
 		
 		// Add specific hook content editors (WP and text) to pages and posts.
-		$this->loader->add_action( 'edit_page_form', $plugin_admin, 'add_hook_content_editors', 10 );
-		$this->loader->add_action( 'edit_form_advanced', $plugin_admin, 'add_hook_content_editors', 10 );
+		$this->loader->add_action( 'add_meta_boxes', $plugin_admin, 'add_hook_content_editors', 10, 1 );
 		
 		// Check hook firing via ajax.
 		$this->loader->add_action( 'wp_ajax_hec_check_hook_firing', $plugin_admin, 'check_hook_firing', 10 );

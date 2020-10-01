@@ -4,7 +4,7 @@
  * Plugin Name:       Hooked Editable Content
  * Plugin URI:        https://wordpress.org/plugins/hooked-editable-content/
  * Description:       Create WP or text editors on Edit Post and Edit Page screens for content to be hooked into actions and filters.
- * Version:           1.0.4
+ * Version:           1.1.0
  * Author:            Jon Anwyl
  * Author URI:        http://www.sneezingtrees.com
  * License:           GPL-2.0+

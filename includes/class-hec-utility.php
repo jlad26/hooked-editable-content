@@ -53,7 +53,7 @@ class Hooked_Editable_Content_Utility {
 			'hide_generic_content'		=>	0,
 			'permissions'				=>	array(),
 			'filter_content_placement'	=>	'before',
-			'excl_post_types'			=>	array()
+			'incl_post_types'			=>	array( 'post' => true, 'page' => true )
 		);
 		
 		$hook_info = wp_parse_args( $hook_info, $hook_info_defaults );
@@ -63,22 +63,19 @@ class Hooked_Editable_Content_Utility {
 	}
 	
 	/**
-	 * Get excluded post types for a hooked editor.
+	 * Get included post types for a hooked editor.
 	 *
 	 * @since	1.0.0
 	 * @param	object		$hook		hook object
 	 * @param	array		$hook_info	Array of hook info
-	 * @return	array		Array of excluded post types
+	 * @return	array		Array of included post types
 	 */
-	public function get_excluded_post_types( $hook, $hook_info ) {
-		
-		$excluded_post_types = apply_filters( 'hec_excluded_post_types', $hook_info['excl_post_types'], $hook, $hook_info );
-
-		// Don't add in to edit hook form itself or to attachment posts.
-		$excluded_post_types = array_merge( $excluded_post_types, array( 'attachment', 'hec_hook' ) );
-		
-		return $excluded_post_types;
-		
+	public function get_included_post_types( $hook, $hook_info ) {
+		$included_post_types = array();
+		foreach ( $hook_info['incl_post_types'] as $post_type => $value ) {
+			$included_post_types[] = $post_type;
+		}
+		return apply_filters( 'hec_included_post_types', $included_post_types, $hook, $hook_info );;
 	}
 	
 	/**

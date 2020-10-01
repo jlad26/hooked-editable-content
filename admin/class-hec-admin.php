@@ -465,6 +465,9 @@ class Hooked_Editable_Content_Admin {
 				'</strong>'
 			) . '<br />';
 			
+			// Remove the first message if it's still there.
+			HEC_Admin_Notice_Manager::delete_added_user_notice( 'rating_request', $user_id, false, true );
+			
 		}
 		
 		update_option( 'hooked_editable_content_storage', $options );
@@ -480,9 +483,11 @@ class Hooked_Editable_Content_Admin {
 			'new_tab'	=>	true
 		) ) . ' &nbsp;|&nbsp;&nbsp;</span>';
 		
-		// Second option - not now.
+		$refusal_text = ( 0 == $options['request_rating_timings'][ $user_id ] ) ? __( 'No thanks', 'hooked-editable-content' ) : __( 'Nope, maybe later', 'hooked-editable-content' );
+		
+		// Second option - not now (first time) or never (second time).
 		$rating_message .= '<span style="display: inline-block">' . HEC_Admin_Notice_Manager::dismiss_event_button( array(
-			'content'	=>	__( 'Nope, maybe later', 'hooked-editable-content' ),
+			'content'	=>	$refusal_text,
 			'event'		=>	''
 		) ) . ' &nbsp;|&nbsp;&nbsp;</span>';
 		
@@ -562,11 +567,11 @@ class Hooked_Editable_Content_Admin {
 			$hook_info
 		);
 		
-		// Meta box for excluding post types.
+		// Meta box for including post types.
 		add_meta_box(
-			'hec-hook-excl-post-types-display-mb',
-			__( 'Excluded post types', 'hooked-editable-content' ),
-			array( $this, 'display_excluded_post_types_meta_box' ),
+			'hec-hook-incl-post-types-display-mb',
+			__( 'Included post types', 'hooked-editable-content' ),
+			array( $this, 'display_included_post_types_meta_box' ),
 			'hec_hook',
 			'side',
 			'default',
@@ -609,7 +614,7 @@ class Hooked_Editable_Content_Admin {
 	public function add_hook_editor_title_and_text_editor( $post ) {
 		if ( 'hec_hook' == $post->post_type ) {
 			
-			?><h2 style="padding: 0"><?php _e( 'Generic content (applied on all pages / posts)', 'hooked-editable-content' ); ?></h2><?php
+			?><h2 style="padding: 0"><?php _e( 'Generic content (applied on all pages / posts / archives)', 'hooked-editable-content' ); ?></h2><?php
 			
 			$hook_info = $this->utilities->get_hook_info( $post->ID );
 			
@@ -887,25 +892,63 @@ class Hooked_Editable_Content_Admin {
 	}
 	
 	/**
-	 * Display meta box for excluding post types that editor is available on.
+	 * Get custom post types that are potentially valid for displaying hook editors.
+	 *
+	 * @since	1.1.0
+	 * return	array		array of post types
+	 */
+	private function get_valid_custom_post_types() {
+		
+		// Get all post types excluding revisions and nav_menu_items.
+		$post_types = get_post_types( array( '_builtin' => false ) );
+		$post_types = array_merge( array( 'attachment' => 'attachment' ), $post_types );
+		unset( $post_types['hec_hook'] );
+		
+		return $post_types;
+		
+	}
+	
+	/**
+	 * Display meta box for including post types that editor is available on.
 	 *
 	 * @since	1.0.0
 	 * @param	object	$post	post object of the hook
 	 * @param	object	$array	hook info post meta
 	 */
-	public function display_excluded_post_types_meta_box( $post, $data ) {
+	public function display_included_post_types_meta_box( $post, $data ) {
 		
 		// Security - no nonce because we use nonce set in hook details meta box.
 		
 		// Set hook info.
 		$hook_info = $data['args'];
+
+		echo '<p>' . __( 'Check all post types where this editor should be available (usually posts and/or pages).', 'hooked-editable-content' ) . '</p>';
 		
-		$hook_info['excl_post_types'] = implode( ', ', $hook_info['excl_post_types'] );
-		
-		echo '<p>' . __( 'Add any post types (comma-separated) where this editor should not be available.', 'hooked-editable-content' ) . '</p>';
+		// Put posts and pages at the top.
 		?>
-		<input id="hec-excl-post-types" type="text" name="hec_hook[excl_post_types]" value="<?php echo $hook_info['excl_post_types']; ?>" />
+<p>
+	<input id="hec-hook-incl-post-type-page" type="checkbox" name="hec_hook[incl_post_types][page]" value="1" <?php checked( isset( $hook_info['incl_post_types']['page'] ) ); ?>/>
+	<label for="hec-hook-incl-post-type-page">page</label>
+</p>
+<p>
+	<input id="hec-hook-incl-post-type-post" type="checkbox" name="hec_hook[incl_post_types][post]" value="1" <?php checked( isset( $hook_info['incl_post_types']['post'] ) ); ?>/>
+	<label for="hec-hook-incl-post-type-post">post</label>
+</p>
+<div class="hec-more-post-types">
+	<div class="hec-more-post-types-text"><?php _e( 'Custom post types', 'hooked-editable-content' ); ?></div>
+	<?php
+		// Get valid custom post types.
+		$post_types = $this->get_valid_custom_post_types();	
+		foreach ( $post_types as $post_type ) {
+		?>
+<p>
+	<input id="hec-hook-incl-post-type-<?php echo $post_type; ?>" type="checkbox" name="hec_hook[incl_post_types][<?php echo $post_type; ?>]" value="1" <?php checked( isset( $hook_info['incl_post_types'][ $post_type ] ) ); ?>/>
+	<label for="hec-hook-incl-post-type-<?php echo $post_type; ?>"><?php echo $post_type; ?></label>
+</p>
 		<?php
+		} ?>
+</div><?php	
+		
 	}
 	
 	/**
@@ -942,12 +985,12 @@ class Hooked_Editable_Content_Admin {
 		// Sanitize the posted data, generate error messages, and save.
 		if ( is_array( $_POST['hec_hook'] ) ) {
 
-			// Do all values apart from the permissions - we sanitize them next.
+			// Do all values apart from the permissions and incl_post_types - we sanitize them after.
 			foreach ( $_POST['hec_hook'] as $key => $posted_value ) {
 				
 				$value = '';
 				
-				if ( 'permissions' == $key ) {
+				if ( in_array( $key, array( 'permissions', 'incl_post_types' ) ) ) {
 					continue;
 				}
 				
@@ -1031,17 +1074,11 @@ class Hooked_Editable_Content_Admin {
 						}
 						break;
 						
-					case 'excl_post_types' :
-						// Sanitize and convert to array of comma-separated values
-						$value = str_replace( ' ', '', sanitize_text_field( $posted_value ) );
-						$value = explode( ',', $value );
-						break;
-						
 				}
 				$hook_info[ $key ] = $value;
 			}
 
-			// Get current permissions.
+			// Get current permissions and incl post_types.
 			$current_hook_info = $this->utilities->get_hook_info( $post_id );
 			$current_permissions = $current_hook_info['permissions'];
 			
@@ -1066,6 +1103,18 @@ class Hooked_Editable_Content_Admin {
 			}
 			
 			$hook_info['permissions'] = $current_permissions;
+			
+			// Sanitize and update incl_post_types data.
+			$potential_post_types = array_merge(
+				array( 'page' => 'page', 'post' => 'post' ),
+				$this->get_valid_custom_post_types()
+			);
+			$hook_info['incl_post_types'] = array();
+			foreach ( $potential_post_types as $potential_post_type ) {
+				if ( isset( $_POST['hec_hook']['incl_post_types'][ $potential_post_type ] ) ) {
+					$hook_info['incl_post_types'][ $potential_post_type ] = 1;
+				}
+			}
 
 			// Update post meta.
 			update_post_meta( $post_id, 'hec_hook_info', $hook_info );
@@ -1195,10 +1244,51 @@ class Hooked_Editable_Content_Admin {
 	 * Add hook content editors.
 	 *
 	 * @since	1.0.0
-	 * @param	object	$post		post object
-	 * @hooked edit_page_form, edit_form_advanced
+	 * @hooked add_meta_boxes
 	 */
-	public function add_hook_content_editors( $post ) {
+	public function add_hook_content_editors() {
+		
+		global $post;
+		
+		$display = false;
+		
+		// Only display if we have at least one editor to display.
+		if ( ! empty( $hooks = $this->utilities->get_hooks() ) ) {
+
+			foreach ( $hooks as $hook ) {
+				// Get hook info.
+				$hook_info = $this->utilities->get_hook_info( $hook->ID );
+				$included_post_types = $this->utilities->get_included_post_types( $hook, $hook_info );
+				if ( in_array( $post->post_type, $included_post_types ) ) {
+					if ( $this->user_can_edit_content( $post, $hook, $hook_info ) ) {
+						$display = true;
+						break;
+					}
+				}
+			}
+
+		}
+		
+		if ( $display ) {
+			add_meta_box(
+				'hec-content-editors-container',
+				__( 'Hooked Content Editors', 'hooked-editable-content' ),
+				array( $this, 'render_hook_content_editors' ),
+				null,
+				'normal'
+			);
+		}
+			
+	}
+	
+	/**
+	 * Render hook content editors.
+	 *
+	 * @since	1.1.0
+	 */
+	public function render_hook_content_editors() {
+		
+		global $post;
 		
 		if ( ! empty( $hooks = $this->utilities->get_hooks() ) ) {
 
@@ -1207,10 +1297,10 @@ class Hooked_Editable_Content_Admin {
 				// Get hook info.
 				$hook_info = $this->utilities->get_hook_info( $hook->ID );
 				
-				$excluded_post_types = $this->utilities->get_excluded_post_types( $hook, $hook_info );
+				$included_post_types = $this->utilities->get_included_post_types( $hook, $hook_info );
 				
-				// Don't display if this is an excluded post type for this hooked editor.
-				if ( ! in_array( $post->post_type, $excluded_post_types  ) ) {
+				// Only display if this is an included post type for this hooked editor.
+				if ( in_array( $post->post_type, $included_post_types ) ) {
 				
 					if ( $this->user_can_edit_content( $post, $hook, $hook_info ) ) {
 
@@ -1382,7 +1472,7 @@ class Hooked_Editable_Content_Admin {
 		// Get page / post preview content.
 		$request = wp_remote_get( $preview_link, array( 'cookies' => $cookies ) );
 		$response_code = wp_remote_retrieve_response_code( $request );
-
+		
 		// Check we have a valid response code.
 		if ( 200 == $response_code ) {
 		

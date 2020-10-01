@@ -68,9 +68,11 @@
 	margin-right: 0;
 }
 
-/* Style excluded post types metabox */
-#hec-hook-excl-post-types-display-mb input {
-	width: 100%;
+/* Style included post types metabox */
+.hec-more-post-types-text {
+	border-bottom: 1px solid #ccd0d4;
+	height: 36px;
+	line-height: 36px;
 }
 
 /* Media queries */

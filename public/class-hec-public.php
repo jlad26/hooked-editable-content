@@ -126,10 +126,20 @@ class Hooked_Editable_Content_Public {
 			// Get hook info.
 			$hook_info = $this->utilities->get_hook_info( $hook->ID );
 			
-			$excluded_post_types = $this->utilities->get_excluded_post_types( $hook, $hook_info );
+			$included_post_types = $this->utilities->get_included_post_types( $hook, $hook_info );
 			
-			// Don't display if this is an excluded post type for this hooked editor.
-			if ( ! in_array( $post_type, $excluded_post_types  ) ) {
+			// Only display if this is an included post type for this hooked editor,
+			// or 'page' is an included post type and this is an archive.
+			$display_content = apply_filters(
+				'hec_display_hook_content',
+				in_array( $post_type, $included_post_types  ) || ( in_array( 'page', $included_post_types ) && is_archive() ),
+				$hook,
+				$hook_info,
+				$post_type,
+				is_post_type_archive( $post_type )
+			);
+			
+			if ( $display_content ) {
 			
 				// Get post id.
 				if ( is_front_page() ) {

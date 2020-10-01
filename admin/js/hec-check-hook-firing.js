@@ -16,49 +16,42 @@
 				$( '#hec-hook-failed-msg-' + hookId ).show();
 			}
 		}
+
+		// Get all hook editor ids and send via ajax for checking.
+		var hookIds = [];
+		$( '.hec-hook-id' ).each( function() {
+			hookIds.push( $(this).val() );
+		});
 		
-		// Get the preview url.
-		var previewUrl = $( 'a#post-preview' ).attr( 'href' );
-		
-		if ( 'undefined' != typeof( previewUrl ) ) {
-		
-			// Get all hook editor ids and send via ajax for checking.
-			var hookIds = [];
-			$( '.hec-hook-id' ).each( function() {
-				hookIds.push( $(this).val() );
-			});
+		if ( hookIds.length ) {
 			
-			if ( hookIds.length ) {
-				
-				// Request data.
-				$.ajax({
-					url : ajaxurl,
-					type : 'post',
-					data : {
-						action				: 'hec_check_hook_firing',
-						hecHookCheckNonce	: hooked_editable_content.hecHookCheckNonce,
-						hookIds				: hookIds,
-						postID				: $('input#post_ID').val()
-					},
-					xhrFields: {
-						withCredentials: true
-					},
-					success : function( response ) {
-						if ( 'undefined' != typeof( response ) ) {
-							var hookChecks = $.parseJSON( response );
-							if ( 'object' == typeof( hookChecks ) ) {
-								for ( var i = 0; i < hookIds.length; i++ ) {
-									if ( 'undefined' != typeof( hookChecks[ hookIds[i] ] ) ) {
-										displayHookFireMessage( hookIds[i], hookChecks[ hookIds[i] ] );
-									}
-									
+			// Request data.
+			$.ajax({
+				url : ajaxurl,
+				type : 'post',
+				data : {
+					action				: 'hec_check_hook_firing',
+					hecHookCheckNonce	: hooked_editable_content.hecHookCheckNonce,
+					hookIds				: hookIds,
+					postID				: $('input#post_ID').val()
+				},
+				xhrFields: {
+					withCredentials: true
+				},
+				success : function( response ) {
+					if ( 'undefined' != typeof( response ) ) {
+						var hookChecks = $.parseJSON( response );
+						if ( 'object' == typeof( hookChecks ) ) {
+							for ( var i = 0; i < hookIds.length; i++ ) {
+								if ( 'undefined' != typeof( hookChecks[ hookIds[i] ] ) ) {
+									displayHookFireMessage( hookIds[i], hookChecks[ hookIds[i] ] );
 								}
+								
 							}
 						}
 					}
-				});
-				
-			}
+				}
+			});
 			
 		}
 		
