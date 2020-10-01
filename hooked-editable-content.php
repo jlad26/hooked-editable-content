@@ -21,40 +21,42 @@ if ( ! defined( 'WPINC' ) ) {
 /*--------------------------------------------------------------------------------------------------*/
 /* Code for integration with Freemius functionality (https://freemius.com/wordpress/insights/) */
 
-// Create a helper function for easy SDK access.
-function hec_fs() {
-	global $hec_fs;
+if ( ! function_exists( 'hec_fs' ) ) {
+	// Create a helper function for easy SDK access.
+	function hec_fs() {
+		global $hec_fs;
 
-	if ( ! isset( $hec_fs ) ) {
-		// Include Freemius SDK.
-		require_once dirname(__FILE__) . '/freemius/start.php';
+		if ( ! isset( $hec_fs ) ) {
+			// Include Freemius SDK.
+			require_once dirname(__FILE__) . '/freemius/start.php';
 
-		$hec_fs = fs_dynamic_init( array(
-			'id'                  => '1231',
-			'slug'                => 'hooked-editable-content',
-			'type'                => 'plugin',
-			'public_key'          => 'pk_3577291d27a65031a555c1992de85',
-			'is_premium'          => false,
-			'has_addons'          => false,
-			'has_paid_plans'      => false,
-			'menu'                => array(
-				'slug'           => 'edit.php?post_type=hec_hook',
-				'account'        => false,
-				'support'        => false,
-				'contact'        => false,
-			),
-		) );
+			$hec_fs = fs_dynamic_init( array(
+				'id'                  => '1231',
+				'slug'                => 'hooked-editable-content',
+				'type'                => 'plugin',
+				'public_key'          => 'pk_3577291d27a65031a555c1992de85',
+				'is_premium'          => false,
+				'has_addons'          => false,
+				'has_paid_plans'      => false,
+				'menu'                => array(
+					'slug'           => 'edit.php?post_type=hec_hook',
+					'account'        => false,
+					'support'        => false,
+					'contact'        => false,
+				),
+			) );
+		}
+
+		return $hec_fs;
 	}
 
-    return $hec_fs;
+	// Init Freemius.
+	hec_fs();
+	// Signal that SDK was initiated.
+	do_action( 'hec_fs_loaded' );
+	// Hook in uninstall actions.
+	hec_fs()->add_action( 'after_uninstall', 'hec_fs_uninstall_cleanup' );
 }
-
-// Init Freemius.
-hec_fs();
-// Signal that SDK was initiated.
-do_action( 'hec_fs_loaded' );
-// Hook in uninstall actions.
-hec_fs()->add_action( 'after_uninstall', 'hec_fs_uninstall_cleanup' );
 
 /**
  * Code to run on uninstall.
