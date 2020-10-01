@@ -20,7 +20,7 @@ An easy way to add content to actions or filters in your theme - and allow users
 1. An editor now also appears on every Edit page and Edit post screen for those users with the right role, so "specific" content can be added which will only appear on that page / post.
 1. Content saved against a post / page is now displayed on the front-end wherever the action / filter appears. If generic content has been saved, then any specific content replaces it on that page / post only.
 
-You can also see some live ![explanatory examples](http://www.sneezingtrees.com/plugins/hooked-editable-content/examples/).
+You can also see some live [explanatory examples](http://www.sneezingtrees.com/plugins/hooked-editable-content/examples/).
 
 ## Installation
 
@@ -33,7 +33,7 @@ You should now find the 'Hooked Editors' menu beneath 'Pages' in your Admin menu
 
 ### Can I see some examples?
 
-Check out a few examples with explanation ![here](http://www.sneezingtrees.com/plugins/hooked-editable-content/examples/).
+Check out a few examples with explanation [here](http://www.sneezingtrees.com/plugins/hooked-editable-content/examples/).
 
 ### Can I style the output from a specific hooked editor?
 
@@ -127,7 +127,7 @@ Release date: 27 June 2017
 ## Contact
 
 If you have any questions or suggestions, you can either [file an issue](https://github.com/jlad26/hooked-editable-content/issues)
-or you can contact me ![here](https://www.sneezingtrees.com/contact/). I'll do my best to get back to you!
+or you can contact me [here](https://www.sneezingtrees.com/contact/). I'll do my best to get back to you!
 
 ## Licence
 
