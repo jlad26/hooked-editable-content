@@ -3,7 +3,7 @@ Contributors: janwyl, freemius
 Tags: filter, action, hook, editor, add slider, add content, modify theme, customize theme, modify template, customize template
 Requires at least: 4.7
 Tested up to: 5.5
-Stable tag: 1.0.2
+Stable tag: 1.1.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -94,9 +94,15 @@ You will need to update the settings of your hooked editors so that they are hoo
 
 == Changelog ==
 
+= 1.1.1 =
+
+Release date: 01 October 2020
+
+* Bug fix: Remove undefined function causing fatal error.
+
 = 1.1.0 =
 
-Release date: 
+Release date: 01 October 2020
 
 * Bug fix: Make sure Hooked Content Editors are displayed with block editor when on edit post.
 * Feature: Change from defining excluded post types to included post types

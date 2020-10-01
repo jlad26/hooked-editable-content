@@ -936,7 +936,6 @@ class Hooked_Editable_Content_Admin {
 		
 		// Get all post types excluding revisions and nav_menu_items.
 		$post_types = get_post_types( array(), 'objects' );
-		st_error_log($post_types);
 		unset( $post_types['revision'] );
 		unset( $post_types['nav_menu_item'] );
 		unset( $post_types['hec_hook'] );
