@@ -198,13 +198,26 @@ class Hooked_Editable_Content_Public {
 	protected function display_hook_content( $hook, $hook_info, $content, $existing_content ) {
 		
 		// Set opening and closing tags.
+		// @deprecated v1.1.2 hec_content_opening_tag - replace with hec_content_container_tags
 		$opening_tag = apply_filters(
 			'hec_content_opening_tag',
 			'action' == $hook_info['type'] ? '<div class="hec-content hec-content-' . esc_attr( sanitize_title( $hook->post_title ) ) . '">' : '',
 			$hook,
 			$hook_info
 		);
+		// @deprecated v1.1.1 hec_content_closing_tag - replace with hec_content_container_tags
 		$closing_tag = apply_filters( 'hec_content_closing_tag', 'action' == $hook_info['type'] ? '</div>' : '', $hook, $hook_info );
+		
+		// @since 1.1.2 hec_content_container_tags filter
+		$wrapping_tags = apply_filters(
+			'hec_content_container_tags',
+			array(
+				'opening'	=>	$opening_tag,
+				'closing'	=>	$closing_tag
+			),
+			$hook,
+			$hook_info
+		);
 		
 		// Apply 'the_content' filter if WP Editor has been used.
 		if ( 'wp' == $hook_info['editor'] ) {
@@ -223,7 +236,7 @@ class Hooked_Editable_Content_Public {
 			}
 			
 		}
-		$content = $opening_tag . $content . $closing_tag;
+		$content = $wrapping_tags['opening'] . $content . $wrapping_tags['closing'];
 
 		// If we are filtering, add in existing content where appropriate.
 		if ( 'filter' == $hook_info['type'] ) {

@@ -1356,12 +1356,15 @@ class Hooked_Editable_Content_Admin {
 								// Display editor.
 								if ( 'wp' == $hook_info['editor'] ) {
 								
+									$editor_settings = array( 'textarea_rows' => 10 );
+									if ( $hook_info['disable_wpautop'] ) {
+										$editor_settings['tinymce'] = array( 'forced_root_block' => false );
+									}
+									
 									wp_editor(
 										get_post_meta( $post->ID, 'hec_content_' . $hook->ID, true ),
 										'hec_content_editor_' . $hook->ID,
-										$settings = array(
-											'textarea_rows'		=> 10
-										)
+										$editor_settings
 									);
 								
 								} else {
