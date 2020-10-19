@@ -94,6 +94,12 @@ You will need to update the settings of your hooked editors so that they are hoo
 
 == Changelog ==
 
+= 1.1.2 =
+
+Release date: 19 October 2020
+
+* Bug fix: Fix tinyMCE adding p tags even when wpautop setting is disabled.
+
 = 1.1.1 =
 
 Release date: 01 October 2020
