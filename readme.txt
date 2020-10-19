@@ -3,7 +3,7 @@ Contributors: janwyl, freemius
 Tags: filter, action, hook, editor, add slider, add content, modify theme, customize theme, modify template, customize template
 Requires at least: 4.7
 Tested up to: 5.5
-Stable tag: 1.1.1
+Stable tag: 1.1.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
