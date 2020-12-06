@@ -94,6 +94,12 @@ You will need to update the settings of your hooked editors so that they are hoo
 
 == Changelog ==
 
+= 1.1.3 =
+
+Release date: 6 December 2020
+
+* Maintenance: Update Freemius SDK.
+
 = 1.1.2 =
 
 Release date: 19 October 2020
